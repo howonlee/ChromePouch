@@ -1,6 +1,10 @@
 
 chrome.browserAction.onClicked.addListener(function(){
 	console.log("browseraction clicked");
+	chrome.tabs.executeScript(null, {
+		file: "./jquery-1.9.1.min.js"
+	});
+	chrome.tabs.executeScript(null, {file: "./content.js"});
 	var iframe = document.getElementById('ourFrame');
 	var message = {
 		command: 'save',
@@ -16,7 +20,7 @@ window.addEventListener('message', function(event){
 		var notification = webkitNotifications.createNotification(
 			'icon.png',
 			'Templated!',
-			'command received'
+			event.data.html
 			);
 		notification.show();
 	}
