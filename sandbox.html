@@ -14,7 +14,8 @@
 					console.log("command save popped");
 					event.source.postMessage({
 						name: name,
-						html: "walla"
+						html: "walla",
+						type: "sandbox"
 					}, event.origin);
 					break;
 
@@ -22,8 +23,12 @@
 					console.log("command load popped");
 					event.source.postMessage({
 						name: name,
-						html: "walla"
+						html: "walla",
+						type: "sandbox"
 					}, event.origin);
+					break;
+					default:
+					console.log(event.data);
 					break;
 				}
 			});
