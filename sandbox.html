@@ -1,0 +1,31 @@
+<html>
+	<head>
+		<script src="pouchdb-nightly.js"></script>
+	</head>
+	<body>
+		<script>
+			window.addEventListener('message', function(event){
+				console.log("event listener in sandbox popped");
+				var command = event.data.command;
+				var name = event.data.name || 'hello';
+				switch(command){
+					case 'save':
+					console.log("command save popped");
+					event.source.postMessage({
+						name: name,
+						html: "walla"
+					}, event.origin);
+					break;
+
+					case 'load':
+					console.log("command load popped");
+					event.source.postMessage({
+						name: name,
+						html: "walla"
+					}, event.origin);
+					break;
+				}
+			});
+		</script>
+	</body>
+</html>
