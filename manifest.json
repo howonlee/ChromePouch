@@ -14,11 +14,13 @@
 	"sandbox": {
 		"pages": ["sandbox.html"]
 	},
+	"options_page": "options.html",
 	"web_accessible_resources": ["icon.png"],
 	"permissions": [
 		"notifications", 
 		"storage",
 		"contextMenus",
-		"tabs", "http://*/*"
+		"tabs", "http://*/*",
+		"<all_urls>"
 	]
 }

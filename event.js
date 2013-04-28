@@ -1,7 +1,8 @@
 
 var lastTabId = -1;
 var state = "save";
-var data = {};
+window.data = {};
+
 function sendSaveMessage(){
 	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 		lastTabId = tabs[0].id;
@@ -12,7 +13,7 @@ function sendSaveMessage(){
 function sendLoadMessage(){
 	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 		lastTabId = tabs[0].id;
-		chrome.tabs.sendMessage(lastTabId, {command: "setcheckbox", data: data});
+		chrome.tabs.sendMessage(lastTabId, {command: "setcheckbox", data: window.data});
 	});
 }
 
@@ -38,6 +39,20 @@ function load(){
 	});
 }
 
+window.replTo = function(to){
+	console.log("started replTo on bg");
+	var iframe = document.getElementById('ourFrame');
+	var cmd = {	command: 'replto', to: to};
+	iframe.contentWindow.postMessage(cmd, '*');
+};
+
+window.replFrom = function(from){
+	console.log("started replFrom on bg");
+	var iframe = document.getElementById('ourFrame');
+	var cmd = {	command: 'replfrom', from: from};
+	iframe.contentWindow.postMessage(cmd, '*');
+};
+
 chrome.browserAction.onClicked.addListener(function(){
 	if (state === "save"){
 		save();
@@ -53,7 +68,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
 	console.log(message);
 	if (message.type === "content"){
 		var iframe = document.getElementById('ourFrame');
-		data = message;
+		window.data = message;
 		var toSave = {	command: 'save', context: message};
 		iframe.contentWindow.postMessage(toSave, '*');
 	}

@@ -1,16 +1,17 @@
 <!-- sandbox script: this one interfaces with Pouch, as opposed to the page in front of the user -->
 <html>
 	<head>
-		<script src="pouchdb-nightly.js"></script>
 	</head>
 	<body>
+		<script src="pouchdb-nightly.js"></script>
 		<script>
-			window.addEventListener('message', function(event){
+			var pouchdb = Pouch("http://localhost:5984/temp");
+			window.addEventListener("message", function(event){
 				console.log("event listener in sandbox popped");
 				var command = event.data.command;
-				var name = event.data.name || 'hello';
+				var name = event.data.name || "hello";
 				switch(command){
-					case 'save':
+					case "save":
 					console.log("command save popped");
 					event.source.postMessage({
 						name: name,
@@ -19,7 +20,7 @@
 					}, event.origin);
 					break;
 
-					case 'load':
+					case "load":
 					console.log("command load popped");
 					event.source.postMessage({
 						name: name,
@@ -27,7 +28,19 @@
 						type: "sandbox"
 					}, event.origin);
 					break;
+
+					case "replto":
+					console.log("started replto on sandbox");
+					Pouch.replicate("http://localhost:5984/temp", event.data.to);
+					break;
+
+					case "replfrom":
+					console.log("started replto on sandbox");
+					Pouch.replicate(event.data.from, "http://localhost:5984/temp");
+					break;
+
 					default:
+					console.log("not a valid command");
 					console.log(event.data);
 					break;
 				}
