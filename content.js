@@ -28,7 +28,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
 			for (var i = 0; i < arr.length; i++){
 				arr[i].checked = data.vals[i];
 			}
-			responseMessage = {	ok: true };
+			responseMessage = {	name: name, vals: vals };
 			chrome.runtime.sendMessage(responseMessage, function(resp){});
 			break;
 		default:
