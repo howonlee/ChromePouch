@@ -11,9 +11,6 @@
 		"default_icon": "icon.png",
 		"default_title": "Save/Load"
 	},
-	"sandbox": {
-		"pages": ["sandbox.html"]
-	},
 	"options_page": "options.html",
 	"web_accessible_resources": ["icon.png"],
 	"permissions": [

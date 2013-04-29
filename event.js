@@ -1,6 +1,9 @@
 
 var lastTabId = -1;
 var state = "save";
+var hasRunSave = false;
+var hasRunLoad = false;
+window.pouch = Pouch("temp");
 window.data = {};
 
 function sendSaveMessage(){
@@ -19,38 +22,48 @@ function sendLoadMessage(){
 
 function save(){
 	console.log("save browseraction clicked");
-	chrome.tabs.executeScript(null, {
-		file: "./jquery-1.9.1.min.js"
-	}, function(){
-		chrome.tabs.executeScript(null, {file: "./content.js"}, function(){
-			sendSaveMessage();
+	if (!hasRunSave){
+		chrome.tabs.executeScript(null, {
+			file: "./jquery-1.9.1.min.js"
+		}, function(){
+			chrome.tabs.executeScript(null, {file: "./content.js"}, function(){
+				hasRunSave = true;
+				sendSaveMessage();
+			});
 		});
-	});
+	} else {
+		sendSaveMessage();
+	}
 }
 
 function load(){
 	console.log("load browseraction clicked");
-	chrome.tabs.executeScript(null, {
-		file: "./jquery-1.9.1.min.js"
-	}, function(){
-		chrome.tabs.executeScript(null, {file: "./content.js"}, function(){
-			sendLoadMessage();
+	if (!hasRunLoad){
+		chrome.tabs.executeScript(null, {
+			file: "./jquery-1.9.1.min.js"
+		}, function(){
+			chrome.tabs.executeScript(null, {file: "./content.js"}, function(){
+				hasRunLoad = true;
+				sendLoadMessage();
+			});
 		});
-	});
+	} else {
+		sendLoadMessage();
+	}
 }
 
 window.replTo = function(to){
-	console.log("started replTo on bg");
-	var iframe = document.getElementById('ourFrame');
-	var cmd = {	command: 'replto', to: to};
-	iframe.contentWindow.postMessage(cmd, '*');
+	Pouch.replicate("temp", to, function(err, changes){
+		console.log("errors in replicating to something");
+		console.log(err);
+	});
 };
 
 window.replFrom = function(from){
-	console.log("started replFrom on bg");
-	var iframe = document.getElementById('ourFrame');
-	var cmd = {	command: 'replfrom', from: from};
-	iframe.contentWindow.postMessage(cmd, '*');
+	Pouch.replicate(from, "temp", function(err, changes){
+		console.log("errors in replicating from something");
+		console.log(err);
+	});
 };
 
 chrome.browserAction.onClicked.addListener(function(){
@@ -66,25 +79,5 @@ chrome.browserAction.onClicked.addListener(function(){
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
 	console.log("got back from content script");
 	console.log(message);
-	if (message.type === "content"){
-		var iframe = document.getElementById('ourFrame');
-		window.data = message;
-		var toSave = {	command: 'save', context: message};
-		iframe.contentWindow.postMessage(toSave, '*');
-	}
-});
-
-window.addEventListener('message', function(event){
-	console.log("eventlistener popped");
-	console.log(event);
-	if (event.data.type === "sandbox"){
-		var notification = webkitNotifications.createNotification(
-			'icon.png',
-			'Saved!',
-			event.data.html
-			);
-		notification.show();
-	} else {
-		console.log(event.data);
-	}
+	window.data = message;
 });
