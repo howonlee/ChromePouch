@@ -20,6 +20,9 @@ function sendLoadMessage(){
 		lastTabId = tabs[0].id;
 		lastTabUrl = tabs[0].url;
 		window.pouch.get(lastTabUrl, function(err, doc){
+			console.log("got doc from pouchdb");
+			console.log("err:");
+			console.log(err);
 			if (typeof err === "undefined"){
 				chrome.tabs.sendMessage(lastTabId, {command: "setcheckbox", data: doc});
 			} else if (window.data[lastTabUrl]){
