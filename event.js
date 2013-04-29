@@ -19,12 +19,15 @@ function sendLoadMessage(){
 	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 		lastTabId = tabs[0].id;
 		lastTabUrl = tabs[0].url;
-		//load pouch here
-		if (window.data[lastTabUrl]){
-			chrome.tabs.sendMessage(lastTabId, {command: "setcheckbox", data: window.data[lastTabUrl]});
-		} else {
-			alert("We haven't saved that one!");
-		}
+		window.pouch.get(lastTabUrl, function(err, doc){
+			if (typeof err === "undefined"){
+				chrome.tabs.sendMessage(lastTabId, {command: "setcheckbox", data: doc});
+			} else if (window.data[lastTabUrl]){
+				chrome.tabs.sendMessage(lastTabId, {command: "setcheckbox", data: window.data[lastTabUrl]});
+			} else {
+				alert("We haven't saved that one!");
+			}
+		});
 	});
 }
 
@@ -96,6 +99,6 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
 		console.log("url:");
 		console.log(lastTabUrl);
 		window.data[lastTabUrl] = message;
+		window.pouch.put({_id: lastTabUrl, msg: message});
 	}
-	//save in pouch here
 });
