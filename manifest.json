@@ -8,11 +8,11 @@
 		"persistent": false
 	},
 	"browser_action":{
-		"default_icon": "icon.png",
+		"default_icon": "iconsave.png",
 		"default_title": "Save/Load"
 	},
 	"options_page": "options.html",
-	"web_accessible_resources": ["icon.png"],
+	"web_accessible_resources": ["iconsave.png", "iconload.png"],
 	"permissions": [
 		"notifications", 
 		"storage",

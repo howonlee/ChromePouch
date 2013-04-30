@@ -1,16 +1,22 @@
 
 var lastTabId = -1;
 var lastTabUrl = "";
-var state = "save";
+window.state = "save";
 var hasRunSave = {};
 var hasRunLoad = {};
 window.pouch = Pouch("temp");
 window.data = {};
 
+function processUrl(url){
+	url = url.replace(/.*?:\/\//g, "");
+	url = url.replace(/\//g, "");
+	return url;
+}
+
 function sendSaveMessage(){
 	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 		lastTabId = tabs[0].id;
-		lastTabUrl = tabs[0].url;
+		lastTabUrl = processUrl(tabs[0].url);
 		chrome.tabs.sendMessage(lastTabId, {command: "getcheckbox", name: "walla"});
 	});
 }
@@ -18,13 +24,12 @@ function sendSaveMessage(){
 function sendLoadMessage(){
 	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 		lastTabId = tabs[0].id;
-		lastTabUrl = tabs[0].url;
+		lastTabUrl = processUrl(tabs[0].url);
+		console.log("attempt to get from pouch:");
+		console.log(lastTabUrl);
 		window.pouch.get(lastTabUrl, function(err, doc){
-			console.log("got doc from pouchdb");
-			console.log("err:");
-			console.log(err);
-			if (typeof err === "undefined"){
-				chrome.tabs.sendMessage(lastTabId, {command: "setcheckbox", data: doc});
+			if (doc){
+				chrome.tabs.sendMessage(lastTabId, {command: "setcheckbox", data: doc.msg});
 			} else if (window.data[lastTabUrl]){
 				chrome.tabs.sendMessage(lastTabId, {command: "setcheckbox", data: window.data[lastTabUrl]});
 			} else {
@@ -35,7 +40,6 @@ function sendLoadMessage(){
 }
 
 function save(url){
-	console.log("save browseraction clicked");
 	if (!hasRunSave[url]){
 		hasRunSave = true;
 		chrome.tabs.executeScript(null, {
@@ -51,7 +55,6 @@ function save(url){
 }
 
 function load(url){
-	console.log("load browseraction clicked");
 	if (!hasRunLoad[url]){
 		hasRunLoad = true;
 		chrome.tabs.executeScript(null, {
@@ -68,39 +71,46 @@ function load(url){
 
 window.replTo = function(to){
 	Pouch.replicate("temp", to, function(err, changes){
-		console.log("errors in replicating to something");
-		console.log(err);
+		if (typeof err !== "null"){
+			console.log(err);
+		}
 	});
 };
 
 window.replFrom = function(from){
 	Pouch.replicate(from, "temp", function(err, changes){
-		console.log("errors in replicating from something");
-		console.log(err);
+		if (typeof err !== "null"){
+			console.log(err);
+		}
 	});
 };
 
+function setStateLoad(){
+	window.state = "load";
+	chrome.browserAction.setIcon({path: "./iconload.png"});
+}
+
+function setStateSave(){
+	window.state = "save";
+	chrome.browserAction.setIcon({path: "./iconsave.png"});
+}
+
 chrome.browserAction.onClicked.addListener(function(){
-	console.log("all teh datas");
-	console.log(window.data);
 	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 		var url = tabs[0].url;
-		if (state === "save"){
+		if (window.state === "save"){
 			save(url);
-			state = "load";
-		} else if (state === "load") {
+			setStateLoad();
+		} else if (window.state === "load") {
 			load(url);
-			state = "save";
+			setStateSave();
 		}
 	});
 });
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
-	console.log("got back from content script");
-	console.log(message);
 	if (message.type === "content"){
-		console.log("url:");
-		console.log(lastTabUrl);
+		lastTabUrl = processUrl(lastTabUrl);
 		window.data[lastTabUrl] = message;
 		window.pouch.put({_id: lastTabUrl, msg: message});
 	}
