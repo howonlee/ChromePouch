@@ -3,7 +3,9 @@
 //content scripts are run in an isolated environment, 
 //so we can fool around however we want with globals and such
 
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){	
+var runtimeOrExtension = chrome.runtime && chrome.runtime.sendMessage ? 'runtime' : 'extension';
+
+chrome[runtimeOrExtension].onMessage.addListener(function(message, sender, sendResponse){	
 	console.log("message:");
 	console.log(message);
 	var command = message.command;
@@ -16,18 +18,19 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
 				return elem.checked;
 			});
 			responseMessage = {	name: name, vals: vals,type: "content" };
-			chrome.runtime.sendMessage(responseMessage, function(resp){});
+			chrome[runtimeOrExtension].sendMessage(responseMessage, function(resp){});
 			break;
 		case 'setcheckbox':
+			var name = message.name || '___';
 			var checkboxes = $(':checkbox');
 			var data = message.data;
-			var vals = message.data.vals;
 			var arr = $.makeArray(checkboxes);
+			var vals = message.data.vals;
 			for (var i = 0; i < arr.length; i++){
 				arr[i].checked = data.vals[i];
 			}
 			responseMessage = {	name: name, vals: vals };
-			chrome.runtime.sendMessage(responseMessage, function(resp){});
+			chrome[runtimeOrExtension].sendMessage(responseMessage, function(resp){});
 			break;
 		default:
 			break;

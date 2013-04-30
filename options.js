@@ -1,7 +1,7 @@
 var bg = chrome.extension.getBackgroundPage();
 
 function replTo(){
-	console.log("pressed replfrom button");
+	console.log("pressed replto button");
 	var text = document.getElementById("replto").value;
 	console.log(text);
 	bg.replTo(text);

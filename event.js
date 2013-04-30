@@ -25,7 +25,7 @@ function sendLoadMessage(){
 	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 		lastTabId = tabs[0].id;
 		lastTabUrl = processUrl(tabs[0].url);
-		console.log("attempt to get from pouch:");
+		console.log("attempting to access pouch:");
 		console.log(lastTabUrl);
 		window.pouch.get(lastTabUrl, function(err, doc){
 			if (doc){
@@ -71,7 +71,7 @@ function load(url){
 
 window.replTo = function(to){
 	Pouch.replicate("temp", to, function(err, changes){
-		if (typeof err !== "null"){
+		if (typeof err !== "undefined"){
 			console.log(err);
 		}
 	});
@@ -79,7 +79,7 @@ window.replTo = function(to){
 
 window.replFrom = function(from){
 	Pouch.replicate(from, "temp", function(err, changes){
-		if (typeof err !== "null"){
+		if (typeof err !== "undefined"){
 			console.log(err);
 		}
 	});
@@ -108,7 +108,8 @@ chrome.browserAction.onClicked.addListener(function(){
 	});
 });
 
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
+var runtimeOrExtension = chrome.runtime && chrome.runtime.sendMessage ? 'runtime' : 'extension';
+chrome[runtimeOrExtension].onMessage.addListener(function(message, sender, sendResponse){
 	if (message.type === "content"){
 		lastTabUrl = processUrl(lastTabUrl);
 		window.data[lastTabUrl] = message;
