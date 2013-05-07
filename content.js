@@ -9,8 +9,7 @@ var contentport = chrome[runtimeOrExtension].connect({name: "page"});
 
 chrome[runtimeOrExtension].onConnect.addListener(function(port){
 	port.onMessage.addListener(function(message){
-		var command = message.command;
-		switch (command){
+		switch (message.command){
 			case 'getcheckbox':
 				var name = message.name || '_';
 				var checkboxes = $(':checkbox');
