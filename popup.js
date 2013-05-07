@@ -12,7 +12,6 @@ $(document).ready(function(){
 		var text = document.getElementById("replfrom").value;
 		console.log(text);
 		bg.replFrom(text);
-		bg.setStateLoad();
 	}
 
 	function saveButton(){

@@ -6,11 +6,9 @@
 var runtimeOrExtension = chrome.runtime && chrome.runtime.sendMessage ? 'runtime' : 'extension';
 
 var contentport = chrome[runtimeOrExtension].connect({name: "page"});
-console.log(contentport);
+
 chrome[runtimeOrExtension].onConnect.addListener(function(port){
 	port.onMessage.addListener(function(message){
-		console.log("message received at content.js:");
-		console.log(message);
 		var command = message.command;
 		switch (command){
 			case 'getcheckbox':
@@ -21,9 +19,7 @@ chrome[runtimeOrExtension].onConnect.addListener(function(port){
 					return elem.checked;
 				});
 				responseMessage = {	name: name, vals: vals, type: "content" };
-				console.log("gonna post message now");
 				contentport.postMessage(responseMessage);
-				console.log("posted message now");
 				break;
 			case 'setcheckbox':
 				var name = message.name || '_';
@@ -35,9 +31,7 @@ chrome[runtimeOrExtension].onConnect.addListener(function(port){
 					arr[i].checked = data.vals[i];
 				}
 				responseMessage = {	name: name, vals: vals };
-				console.log("gonna post message now");
 				contentport.postMessage(responseMessage);
-				console.log("posted message now");
 				break;
 			default:
 				break;
