@@ -6,6 +6,7 @@ var hasRunSave = {};
 var hasRunLoad = {};
 window.pouch = Pouch("temp");
 window.data = {};
+window.ports = {};
 var runtimeOrExtension = chrome.runtime && chrome.runtime.sendMessage ? 'runtime' : 'extension';
 
 function processUrl(url){
@@ -18,9 +19,11 @@ function sendSaveMessage(){
 	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 		lastTabId = tabs[0].id;
 		lastTabUrl = processUrl(tabs[0].url);
-		var port = chrome.tabs.connect(lastTabId, {name: "page"});
-		console.log(port);
-		port.postMessage({command: "getcheckbox", name: "_"});
+		if (!ports[lastTabUrl]){
+			ports[lastTabUrl] = chrome.tabs.connect(lastTabId, {name: "page"});
+			console.log(ports[lastTabUrl]);
+		}
+		ports[lastTabUrl].postMessage({command: "getcheckbox", name: "_"});
 	});
 }
 
@@ -31,12 +34,14 @@ function sendLoadMessage(){
 		console.log("attempting to access pouch:");
 		console.log(lastTabUrl);
 		window.pouch.get(lastTabUrl, function(err, doc){
-			var port = chrome.tabs.connect(lastTabId, {name: "page"});
-			console.log(port);
+			if (!ports[lastTabUrl]){
+				ports[lastTabUrl] = chrome.tabs.connect(lastTabId, {name: "page"});
+				console.log(ports[lastTabUrl]);
+			}
 			if (window.data[lastTabUrl]){
-				port.postMessage({command: "setcheckbox", data: window.data[lastTabUrl]});
+				ports[lastTabUrl].postMessage({command: "setcheckbox", data: window.data[lastTabUrl]});
 			} else if (doc){
-				port.postMessage({command: "setcheckbox", data: doc.msg});
+				ports[lastTabUrl].postMessage({command: "setcheckbox", data: doc.msg});
 			} else {
 				alert("We haven't saved that one!");
 			}
@@ -47,7 +52,7 @@ function sendLoadMessage(){
 function save(url){
 	if (!hasRunSave[url]){
 		hasRunSave[url] = true;
-		console.log("we will run the save script again");
+		console.log("we will run the save script");
 		chrome.tabs.executeScript(null, {
 			file: "./jquery-1.9.1.min.js"
 		}, function(){
@@ -63,7 +68,7 @@ function save(url){
 function load(url){
 	if (!hasRunLoad[url]){
 		hasRunLoad[url] = true;
-		console.log("we will run the load script again");
+		console.log("we will run the load script");
 		chrome.tabs.executeScript(null, {
 			file: "./jquery-1.9.1.min.js"
 		}, function(){
@@ -120,7 +125,6 @@ function loadButtonCallback(){
 
 chrome[runtimeOrExtension].onConnect.addListener(function(port){
 	console.assert(port.name == "page");
-	console.log("got message from content.js");
 	port.onMessage.addListener(function(request){
 		console.log("event got a message");
 		console.log(request);
