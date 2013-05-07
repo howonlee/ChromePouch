@@ -21,8 +21,14 @@ function getPort(lastTabUrl){
 	return ports[lastTabUrl];
 }
 
+function doInCurrTab(callback){
+	chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+		callback(tabs);
+	});
+}
+
 function sendSaveMessage(){
-	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+	doInCurrTab(function(tabs){
 		lastTabId = tabs[0].id;
 		lastTabUrl = processUrl(tabs[0].url);
 		getPort(lastTabUrl).postMessage({command: "getcheckbox", name: "_"});
@@ -30,7 +36,7 @@ function sendSaveMessage(){
 }
 
 function sendLoadMessage(){
-	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+	doInCurrTab(function(tabs){
 		lastTabId = tabs[0].id;
 		lastTabUrl = processUrl(tabs[0].url);
 		window.pouch.get(lastTabUrl, function(err, doc){
@@ -92,7 +98,7 @@ function replFrom(from){
 };
 
 function saveButtonCallback(){
-	chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+	doInCurrTab(function(tabs){
 		var url = tabs[0].url;
 		save(url);
 		chrome.browserAction.setIcon({path: "./iconsave.png"});
@@ -100,7 +106,7 @@ function saveButtonCallback(){
 }
 
 function loadButtonCallback(){
-	chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+	doInCurrTab(function(tabs){
 		var url = tabs[0].url;
 		load(url);
 		chrome.browserAction.setIcon({path: "./iconload.png"});
@@ -108,7 +114,6 @@ function loadButtonCallback(){
 }
 
 chrome[runtimeOrExtension].onConnect.addListener(function(port){
-	console.assert(port.name == "page");
 	port.onMessage.addListener(function(request){
 		if (request.type === "content"){
 			lastTabUrl = processUrl(lastTabUrl);

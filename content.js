@@ -17,8 +17,7 @@ chrome[runtimeOrExtension].onConnect.addListener(function(port){
 				var vals = $.map(arr, function(elem, index){
 					return elem.checked;
 				});
-				responseMessage = {	name: name, vals: vals, type: "content" };
-				contentport.postMessage(responseMessage);
+				contentport.postMessage({name: name, vals: vals, type: "content"});
 				break;
 			case 'setcheckbox':
 				var name = message.name || '_';
@@ -29,8 +28,7 @@ chrome[runtimeOrExtension].onConnect.addListener(function(port){
 				for (var i = 0; i < arr.length; i++){
 					arr[i].checked = data.vals[i];
 				}
-				responseMessage = {	name: name, vals: vals };
-				contentport.postMessage(responseMessage);
+				contentport.postMessage({name: name, vals: vals});
 				break;
 			default:
 				break;
