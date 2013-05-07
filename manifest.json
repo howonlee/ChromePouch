@@ -9,9 +9,9 @@
 	},
 	"browser_action":{
 		"default_icon": "iconsave.png",
-		"default_title": "Save/Load"
+		"default_title": "Save/Load",
+		"default_popup": "popup.html"
 	},
-	"options_page": "options.html",
 	"web_accessible_resources": ["iconsave.png", "iconload.png"],
 	"permissions": [
 		"notifications", 
