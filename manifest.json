@@ -1,5 +1,5 @@
 {
-  "name": "Chrome Settings Store",
+  "name": "PouchDB Settings Store",
   "description": "Stores settings for sites without authentication",
   "version": "0.1",
   "manifest_version": 2,

@@ -1,18 +1,30 @@
 <html>
 	<head>
 		<title>Replicate Pouch</title>
+		<style>
+			label {
+				font-family:"Verdana", sans-serif;
+			}
+			button {
+				font-family:"Verdana", sans-serif;
+			}
+		</style>
 	</head>
 	<body>
 		<button id="savebutton">Save</button>
 		<button id="loadbutton">Load</button>
 		<br>
+		<hr>
 		<label>Replicate to a remote place</label>
 		<input id="replto" type="text" name="name"/>
 		<button id="repltobutton">Replicate</button>
 		<br>
+		<hr>
 		<label>Replicate from a remote place</label>
 		<input id="replfrom" type="text" name="name"/>
 		<button id="replfrombutton">Replicate</button>
+		<br>
+		<hr>
 		<label id="status"></label>
 	</body>
 	<script type="text/javascript" src="jquery-1.9.1.min.js"></script>

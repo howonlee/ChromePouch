@@ -52,6 +52,7 @@ function sendLoadMessage(){
 }
 
 function save(url){
+  console.log("saving...");
   if (!hasRunSave[url]){
     hasRunSave[url] = true;
     chrome.tabs.executeScript(null, {
@@ -67,6 +68,7 @@ function save(url){
 }
 
 function load(url){
+  console.log("loading...");
   if (!hasRunLoad[url]){
     hasRunLoad[url] = true;
     chrome.tabs.executeScript(null, {
